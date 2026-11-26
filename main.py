@@ -30,6 +30,15 @@ def main() -> None:
     os.makedirs("/output", exist_ok=True)
     with open("/output/entry.txt", "w", encoding="utf-8") as f:
         f.write(JOKE)
+    # Read-back verification: confirm what landed on disk is exactly
+    # the joke we meant to ship. A silent truncation, encoding slip,
+    # or partial write must fail loudly here instead of reaching the
+    # scorer as a corrupted entry.
+    with open("/output/entry.txt", "r", encoding="utf-8") as f:
+        on_disk = f.read()
+    assert on_disk == JOKE, "entry.txt on disk differs from JOKE"
+    assert 1 <= len(on_disk) <= 200, "entry.txt must be 1-200 characters"
+    assert "\n" not in on_disk, "entry.txt must be a single line"
 
 
 if __name__ == "__main__":
